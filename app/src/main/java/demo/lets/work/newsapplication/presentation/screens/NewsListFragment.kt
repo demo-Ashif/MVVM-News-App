@@ -1,4 +1,4 @@
-package demo.lets.work.newsapplication
+package demo.lets.work.newsapplication.presentation.screens
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,8 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
+import demo.lets.work.newsapplication.R
 
 
+@AndroidEntryPoint
 class NewsListFragment : Fragment() {
 
     override fun onCreateView(
