@@ -1,5 +1,6 @@
 package demo.lets.work.newsapplication.data.repository
 
+import android.util.Log
 import demo.lets.work.newsapplication.core.utils.Resource
 import demo.lets.work.newsapplication.data.local.NewsDao
 import demo.lets.work.newsapplication.data.remote.api.NewsApi
@@ -18,6 +19,8 @@ class NewsRepositoryImpl @Inject constructor(
 
 
     override fun getAllNewsHeadlines(): Flow<Resource<List<News>>> = flow {
+        Log.d("ashif","its called")
+
         emit(Resource.Loading())
 
         val staleNewsHeadlines = dao.getAllNewsHeadlines().map { it.toNews() }
@@ -35,6 +38,7 @@ class NewsRepositoryImpl @Inject constructor(
                 )
             )
         } catch (e: IOException) {
+            Log.d("ashif IO",e.toString())
             emit(
                 Resource.Error(
                     message = "Couldn't reach server, check your internet connection.",

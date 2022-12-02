@@ -5,25 +5,35 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import demo.lets.work.newsapplication.R
+import demo.lets.work.newsapplication.databinding.FragmentNewsListBinding
+import demo.lets.work.newsapplication.presentation.viewmodel.NewsViewModel
 
 
 @AndroidEntryPoint
 class NewsListFragment : Fragment() {
 
+    private var _binding: FragmentNewsListBinding? = null
+    private val binding get() = _binding!!
+    private val newsViewModel by viewModels<NewsViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_news_list, container, false)
-        val textView = view.findViewById<TextView>(R.id.tvTextName)
-        textView.setOnClickListener {
+    ): View {
+
+        _binding = FragmentNewsListBinding.inflate(inflater, container, false)
+
+        binding.tvTextName.setOnClickListener {
             findNavController().navigate(R.id.action_newsListFragment_to_newsDetailsFragment)
         }
-        return view
+
+        newsViewModel.getNewsHeadlines()
+
+        return binding.root
     }
 
 

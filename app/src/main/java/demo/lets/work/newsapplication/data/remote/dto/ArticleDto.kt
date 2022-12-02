@@ -1,13 +1,15 @@
 package demo.lets.work.newsapplication.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
+import demo.lets.work.newsapplication.core.utils.Helper
 import demo.lets.work.newsapplication.data.local.entity.NewsEntity
 
 data class ArticleDto(
-    val sourceDto: SourceDto,
+    @SerializedName("source")
+    val sourceDto: SourceDto?,
     val title: String,
     val description: String,
-    val author: String,
+    val author: String?,
     @SerializedName("url")
     val newsUrl: String,
     @SerializedName("urlToImage")
@@ -16,14 +18,23 @@ data class ArticleDto(
     val publishedAt: String
 ) {
     fun toNewsEntity(): NewsEntity {
+
         return NewsEntity(
             newsTitle = title,
             newsDescription = description,
-            newsAuthor = author,
+            newsAuthor = author ?: "News Correspondent",
             newsUrl = newsUrl,
             newsImage = imageUrl,
-            sourceName = sourceDto.name,
-            newsPublishedAt = publishedAt
+            sourceName = validateSourceName(),
+            newsPublishedAt = Helper.toReadableDate(publishedAt)
         )
+    }
+
+    private fun validateSourceName(): String {
+        return if (sourceDto?.name == null) {
+            "N/A"
+        } else {
+            sourceDto.name
+        }
     }
 }
