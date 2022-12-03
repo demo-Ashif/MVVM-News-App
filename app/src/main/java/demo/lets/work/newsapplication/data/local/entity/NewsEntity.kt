@@ -19,6 +19,7 @@ data class NewsEntity(
 ) {
     fun toNews(): News {
         return News(
+            id = id ?: 0,
             newsTitle = newsTitle,
             newsDescription = newsDescription,
             newsAuthor = newsAuthor,

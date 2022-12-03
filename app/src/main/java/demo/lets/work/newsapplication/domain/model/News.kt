@@ -1,8 +1,7 @@
 package demo.lets.work.newsapplication.domain.model
 
-import demo.lets.work.newsapplication.data.local.entity.NewsEntity
-
 data class News(
+    val id: Int,
     val newsTitle: String,
     val newsDescription: String,
     val newsAuthor: String,

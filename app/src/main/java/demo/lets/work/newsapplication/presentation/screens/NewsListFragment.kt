@@ -5,13 +5,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import demo.lets.work.newsapplication.R
 import demo.lets.work.newsapplication.databinding.FragmentNewsListBinding
+import demo.lets.work.newsapplication.domain.model.News
+import demo.lets.work.newsapplication.presentation.adapter.NewsAdapter
 import demo.lets.work.newsapplication.presentation.viewmodel.NewsViewModel
-
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NewsListFragment : Fragment() {
@@ -19,6 +27,7 @@ class NewsListFragment : Fragment() {
     private var _binding: FragmentNewsListBinding? = null
     private val binding get() = _binding!!
     private val newsViewModel by viewModels<NewsViewModel>()
+    private lateinit var adapter: NewsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,15 +35,56 @@ class NewsListFragment : Fragment() {
     ): View {
 
         _binding = FragmentNewsListBinding.inflate(inflater, container, false)
-
-        binding.tvTextName.setOnClickListener {
-            findNavController().navigate(R.id.action_newsListFragment_to_newsDetailsFragment)
-        }
-
-        newsViewModel.getNewsHeadlines()
+        adapter = NewsAdapter(::onNewsClicked)
+        bindingObservers()
 
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        bindingObservers()
+
+        binding.rvNewsList.layoutManager =
+            LinearLayoutManager(context)
+        binding.rvNewsList.setHasFixedSize(true)
+        binding.rvNewsList.adapter = adapter
+
+//        binding.tvTextName.setOnClickListener {
+//            findNavController().navigate(R.id.action_newsListFragment_to_newsDetailsFragment)
+//        }
+
+        newsViewModel.getNewsHeadlines()
+    }
+
+    private fun onNewsClicked(newsItem: News) {
+        Toast.makeText(context, newsItem.newsTitle, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun bindingObservers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                newsViewModel.newsStateFlow.collect {
+                    when (it) {
+                        is NewsViewModel.NewsUiEvent.Loading -> {
+                            binding.progressBar.isVisible = true
+                        }
+                        is NewsViewModel.NewsUiEvent.Error -> {
+                            binding.progressBar.isVisible = false
+                        }
+                        is NewsViewModel.NewsUiEvent.Success -> {
+                            binding.progressBar.isVisible = false
+                            adapter.submitList(it.data)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
 }

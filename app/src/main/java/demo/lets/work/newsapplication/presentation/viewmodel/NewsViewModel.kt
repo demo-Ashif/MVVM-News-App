@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import demo.lets.work.newsapplication.core.common.DispatcherProvider
 import demo.lets.work.newsapplication.core.utils.Resource
+import demo.lets.work.newsapplication.domain.model.News
 import demo.lets.work.newsapplication.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,22 +21,27 @@ class NewsViewModel @Inject constructor(
     sealed class NewsUiEvent {
         object Loading : NewsUiEvent()
         object Error : NewsUiEvent()
-        object Success : NewsUiEvent()
+        class Success(val data: List<News>) : NewsUiEvent()
     }
 
-    private val _newsEvent =
+    private val _newsStateFlow =
         MutableStateFlow<NewsUiEvent>(NewsUiEvent.Loading)
-    val newsEvent: StateFlow<NewsUiEvent> = _newsEvent
+    val newsStateFlow: StateFlow<NewsUiEvent>
+        get() = _newsStateFlow
 
 
-     fun getNewsHeadlines() {
+    fun getNewsHeadlines() {
         viewModelScope.launch(dispatcher.io) {
 
             repository.getAllNewsHeadlines().collect { result ->
                 when (result) {
                     is Resource.Error -> {}
                     is Resource.Loading -> {}
-                    is Resource.Success -> {}
+                    is Resource.Success -> {
+                        if (result.data != null) {
+                            _newsStateFlow.emit(NewsUiEvent.Success(result.data))
+                        }
+                    }
                 }
             }
         }

@@ -1,42 +1,51 @@
 package demo.lets.work.newsapplication.presentation.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import demo.lets.work.newsapplication.R
+import demo.lets.work.newsapplication.databinding.NewsItemBinding
 import demo.lets.work.newsapplication.domain.model.News
 
-class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
-    private val allNews: MutableList<News> = mutableListOf()
+class NewsAdapter(private val onNewsClicked: (News) -> Unit) :
+    ListAdapter<News, NewsAdapter.NoteViewHolder>(ComparatorDiffUtil()) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
+        val binding = NewsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return NoteViewHolder(binding)
+    }
 
-    inner class NewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-
-        fun bind(item: News) {
-
+    override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
+        val news = getItem(position)
+        news?.let {
+            holder.bind(it)
         }
     }
 
-    fun setAllNews(newsList: List<News>) {
-        allNews.clear()
-        allNews.addAll(newsList)
-        notifyDataSetChanged()
+    inner class NoteViewHolder(private val binding: NewsItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(news: News) {
+            binding.tvTitle.text = news.newsTitle
+            binding.tvDescription.text = news.newsDescription
+            binding.tvSourceName.text = news.sourceName
+            binding.tvPublishDate.text = news.newsPublishedAt
+            binding.root.setOnClickListener {
+                onNewsClicked(news)
+            }
+        }
+
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.news_item, parent, false)
-        return NewsViewHolder(view)
+    class ComparatorDiffUtil : DiffUtil.ItemCallback<News>() {
+        override fun areItemsTheSame(oldItem: News, newItem: News): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: News, newItem: News): Boolean {
+            return oldItem == newItem
+        }
     }
 
-    override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-
-        holder.bind(allNews[position])
-    }
-
-    override fun getItemCount(): Int {
-        return allNews.size
-    }
 
 }

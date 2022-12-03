@@ -8,23 +8,25 @@ data class ArticleDto(
     @SerializedName("source")
     val sourceDto: SourceDto?,
     val title: String,
-    val description: String,
+    @SerializedName("description")
+    val description: String?,
     val author: String?,
     @SerializedName("url")
     val newsUrl: String,
     @SerializedName("urlToImage")
-    val imageUrl: String,
-    val content: String,
+    val imageUrl: String?,
+    @SerializedName("content")
+    val content: String?,
     val publishedAt: String
 ) {
     fun toNewsEntity(): NewsEntity {
 
         return NewsEntity(
             newsTitle = title,
-            newsDescription = description,
+            newsDescription = description?:"Read more ...",
             newsAuthor = author ?: "News Correspondent",
             newsUrl = newsUrl,
-            newsImage = imageUrl,
+            newsImage = imageUrl?:"",
             sourceName = validateSourceName(),
             newsPublishedAt = Helper.toReadableDate(publishedAt)
         )
