@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import demo.lets.work.newsapplication.R
+import demo.lets.work.newsapplication.core.common.Constants
 import demo.lets.work.newsapplication.databinding.FragmentNewsListBinding
 import demo.lets.work.newsapplication.domain.model.News
 import demo.lets.work.newsapplication.presentation.adapter.NewsAdapter
@@ -49,16 +50,14 @@ class NewsListFragment : Fragment() {
             LinearLayoutManager(context)
         binding.rvNewsList.setHasFixedSize(true)
         binding.rvNewsList.adapter = adapter
-
-//        binding.tvTextName.setOnClickListener {
-//            findNavController().navigate(R.id.action_newsListFragment_to_newsDetailsFragment)
-//        }
-
-        newsViewModel.getNewsHeadlines()
     }
 
     private fun onNewsClicked(newsItem: News) {
-        Toast.makeText(context, newsItem.newsTitle, Toast.LENGTH_SHORT).show()
+        val bundle = Bundle()
+        bundle.putString(Constants.NEWS_URL, newsItem.newsUrl)
+
+        findNavController().navigate(R.id.action_newsListFragment_to_newsDetailsFragment, bundle)
+
     }
 
     private fun bindingObservers() {
@@ -80,6 +79,10 @@ class NewsListFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

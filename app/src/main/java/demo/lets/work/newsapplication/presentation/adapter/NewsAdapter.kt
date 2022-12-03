@@ -2,9 +2,14 @@ package demo.lets.work.newsapplication.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import demo.lets.work.newsapplication.R
 import demo.lets.work.newsapplication.databinding.NewsItemBinding
 import demo.lets.work.newsapplication.domain.model.News
 
@@ -26,15 +31,29 @@ class NewsAdapter(private val onNewsClicked: (News) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(news: News) {
-            binding.tvTitle.text = news.newsTitle
-            binding.tvDescription.text = news.newsDescription
-            binding.tvSourceName.text = news.sourceName
-            binding.tvPublishDate.text = news.newsPublishedAt
+            binding.news = news
             binding.root.setOnClickListener {
                 onNewsClicked(news)
             }
         }
 
+    }
+
+    companion object {
+        @JvmStatic
+        @BindingAdapter("loadImage")
+        fun loadImage(thumbs: ImageView, imageUrl: String) {
+
+            Glide.with(thumbs)
+                .load(imageUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.news_image_placeholder)
+                        .error(R.drawable.news_image_placeholder)
+                )
+                .into(thumbs)
+
+        }
     }
 
     class ComparatorDiffUtil : DiffUtil.ItemCallback<News>() {

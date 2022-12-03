@@ -18,6 +18,10 @@ class NewsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider
 ) : ViewModel() {
 
+    init {
+        getNewsHeadlines()
+    }
+
     sealed class NewsUiEvent {
         object Loading : NewsUiEvent()
         object Error : NewsUiEvent()
@@ -30,7 +34,7 @@ class NewsViewModel @Inject constructor(
         get() = _newsStateFlow
 
 
-    fun getNewsHeadlines() {
+    private fun getNewsHeadlines() {
         viewModelScope.launch(dispatcher.io) {
 
             repository.getAllNewsHeadlines().collect { result ->

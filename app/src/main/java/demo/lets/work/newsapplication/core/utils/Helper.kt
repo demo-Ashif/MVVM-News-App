@@ -30,7 +30,7 @@ object Helper {
                 dateFormat.parse(dateInput) as Date
             val formatter: DateFormat =
                 SimpleDateFormat(
-                    "dd MMM, yyyy h:mm a",
+                    "MMMM dd, yyyy",
                     Locale.getDefault()
                 )
             formatter.format(date)
