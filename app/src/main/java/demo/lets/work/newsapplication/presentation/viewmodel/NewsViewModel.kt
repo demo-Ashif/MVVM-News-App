@@ -24,7 +24,7 @@ class NewsViewModel @Inject constructor(
 
     sealed class NewsUiEvent {
         object Loading : NewsUiEvent()
-        object Error : NewsUiEvent()
+        class Error(val data: List<News>, val msg: String) : NewsUiEvent()
         class Success(val data: List<News>) : NewsUiEvent()
     }
 
@@ -39,8 +39,19 @@ class NewsViewModel @Inject constructor(
 
             repository.getAllNewsHeadlines().collect { result ->
                 when (result) {
-                    is Resource.Error -> {}
-                    is Resource.Loading -> {}
+                    is Resource.Error -> {
+                        if (result.data != null) {
+                            _newsStateFlow.emit(
+                                NewsUiEvent.Error(
+                                    data = result.data,
+                                    msg = result.message!!
+                                )
+                            )
+                        }
+                    }
+                    is Resource.Loading -> {
+                        _newsStateFlow.emit(NewsUiEvent.Loading)
+                    }
                     is Resource.Success -> {
                         if (result.data != null) {
                             _newsStateFlow.emit(NewsUiEvent.Success(result.data))

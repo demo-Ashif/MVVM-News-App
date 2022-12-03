@@ -64,12 +64,14 @@ class NewsListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 newsViewModel.newsStateFlow.collect {
+
                     when (it) {
                         is NewsViewModel.NewsUiEvent.Loading -> {
                             binding.progressBar.isVisible = true
                         }
                         is NewsViewModel.NewsUiEvent.Error -> {
                             binding.progressBar.isVisible = false
+                            showToast(it.msg)
                         }
                         is NewsViewModel.NewsUiEvent.Success -> {
                             binding.progressBar.isVisible = false
