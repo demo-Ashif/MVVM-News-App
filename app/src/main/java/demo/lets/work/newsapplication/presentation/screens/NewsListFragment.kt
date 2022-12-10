@@ -16,12 +16,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import demo.lets.work.newsapplication.R
 import demo.lets.work.newsapplication.core.common.Constants
+import demo.lets.work.newsapplication.core.utils.ConnectivityObserver
 import demo.lets.work.newsapplication.databinding.FragmentNewsListBinding
 import demo.lets.work.newsapplication.domain.model.News
 import demo.lets.work.newsapplication.presentation.adapter.NewsAdapter
 import demo.lets.work.newsapplication.presentation.viewmodel.NewsViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsListFragment : Fragment() {
@@ -30,6 +34,9 @@ class NewsListFragment : Fragment() {
     private val binding get() = _binding!!
     private val newsViewModel by viewModels<NewsViewModel>()
     private lateinit var adapter: NewsAdapter
+
+    @Inject
+    lateinit var connectivityObserver: ConnectivityObserver
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,6 +92,23 @@ class NewsListFragment : Fragment() {
                 }
             }
         }
+
+        connectivityObserver.observe().onEach { status ->
+            when (status) {
+                ConnectivityObserver.Status.Available -> {
+                    newsViewModel.getNewsHeadlines()
+                }
+                ConnectivityObserver.Status.Unavailable -> {
+
+                }
+                ConnectivityObserver.Status.Lost -> {
+
+                }
+                ConnectivityObserver.Status.Losing -> {
+
+                }
+            }
+        }.launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun showToast(msg: String) {

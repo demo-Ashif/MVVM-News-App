@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import demo.lets.work.newsapplication.core.common.DispatcherProvider
+import demo.lets.work.newsapplication.core.utils.ConnectivityObserver
 import demo.lets.work.newsapplication.core.utils.Resource
 import demo.lets.work.newsapplication.domain.model.News
 import demo.lets.work.newsapplication.domain.repository.NewsRepository
@@ -19,9 +20,9 @@ class NewsViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider
 ) : ViewModel() {
 
-    init {
-        getNewsHeadlines()
-    }
+//    init {
+//        getNewsHeadlines()
+//    }
 
     sealed class NewsUiEvent {
         object Loading : NewsUiEvent()
@@ -35,7 +36,7 @@ class NewsViewModel @Inject constructor(
         get() = _newsStateFlow
 
 
-    private fun getNewsHeadlines() {
+    fun getNewsHeadlines() {
         viewModelScope.launch(dispatcher.io) {
             repository.getAllNewsHeadlines().collect { result ->
                 when (result) {
@@ -47,8 +48,7 @@ class NewsViewModel @Inject constructor(
                                     msg = result.message
                                 )
                             )
-                        }
-                        else {
+                        } else {
                             _newsStateFlow.emit(
                                 NewsUiEvent.Error(
                                     data = null,
