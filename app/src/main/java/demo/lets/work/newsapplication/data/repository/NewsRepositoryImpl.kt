@@ -19,15 +19,15 @@ class NewsRepositoryImpl @Inject constructor(
 
     override fun getAllNewsHeadlines(): Flow<Resource<List<News>>> = flow {
 
-        emit(Resource.Loading())
-
         val staleNewsHeadlines = dao.getAllNewsHeadlines().map { it.toNews() }
         emit(Resource.Loading(data = staleNewsHeadlines))
 
         try {
-            val allNewsHeadlines = api.getNewsHeadlines("us",50)
+            val allNewsHeadlines = api.getNewsHeadlines("us", 50)
             dao.deleteAllNews()
             dao.insert(allNewsHeadlines.articleList.map { it.toNewsEntity() })
+            val freshNewsHeadLines = dao.getAllNewsHeadlines().map { it.toNews() }
+            emit(Resource.Success(freshNewsHeadLines))
         } catch (e: HttpException) {
             emit(
                 Resource.Error(
@@ -36,17 +36,20 @@ class NewsRepositoryImpl @Inject constructor(
                 )
             )
         } catch (e: IOException) {
-
             emit(
                 Resource.Error(
                     message = "Couldn't reach server, check your internet connection.",
                     data = staleNewsHeadlines
                 )
             )
+        } catch (e: Exception) {
+            emit(
+                Resource.Error(
+                    message = "Something went wrong. Please try again!",
+                    data = staleNewsHeadlines
+                )
+            )
         }
-
-        val freshNewsHeadLines = dao.getAllNewsHeadlines().map { it.toNews() }
-        emit(Resource.Success(freshNewsHeadLines))
 
     }
 

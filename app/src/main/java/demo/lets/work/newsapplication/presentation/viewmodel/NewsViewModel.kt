@@ -10,6 +10,7 @@ import demo.lets.work.newsapplication.domain.repository.NewsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,19 +25,18 @@ class NewsViewModel @Inject constructor(
 
     sealed class NewsUiEvent {
         object Loading : NewsUiEvent()
-        class Error(val data: List<News>, val msg: String) : NewsUiEvent()
-        class Success(val data: List<News>) : NewsUiEvent()
+        class Error(val data: List<News>?, val msg: String?) : NewsUiEvent()
+        class Success(val data: List<News>, val msg: String?) : NewsUiEvent()
     }
 
     private val _newsStateFlow =
         MutableStateFlow<NewsUiEvent>(NewsUiEvent.Loading)
-    val newsStateFlow: StateFlow<NewsUiEvent>
+    val newsStateFlow: MutableStateFlow<NewsUiEvent>
         get() = _newsStateFlow
 
 
     private fun getNewsHeadlines() {
         viewModelScope.launch(dispatcher.io) {
-
             repository.getAllNewsHeadlines().collect { result ->
                 when (result) {
                     is Resource.Error -> {
@@ -44,7 +44,15 @@ class NewsViewModel @Inject constructor(
                             _newsStateFlow.emit(
                                 NewsUiEvent.Error(
                                     data = result.data,
-                                    msg = result.message!!
+                                    msg = result.message
+                                )
+                            )
+                        }
+                        else {
+                            _newsStateFlow.emit(
+                                NewsUiEvent.Error(
+                                    data = null,
+                                    msg = result.message
                                 )
                             )
                         }
@@ -54,7 +62,12 @@ class NewsViewModel @Inject constructor(
                     }
                     is Resource.Success -> {
                         if (result.data != null) {
-                            _newsStateFlow.emit(NewsUiEvent.Success(result.data))
+                            _newsStateFlow.emit(
+                                NewsUiEvent.Success(
+                                    data = result.data,
+                                    msg = "Success"
+                                )
+                            )
                         }
                     }
                 }

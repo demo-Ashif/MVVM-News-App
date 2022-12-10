@@ -21,6 +21,7 @@ import demo.lets.work.newsapplication.domain.model.News
 import demo.lets.work.newsapplication.presentation.adapter.NewsAdapter
 import demo.lets.work.newsapplication.presentation.viewmodel.NewsViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class NewsListFragment : Fragment() {
@@ -67,13 +68,16 @@ class NewsListFragment : Fragment() {
 
                     when (it) {
                         is NewsViewModel.NewsUiEvent.Loading -> {
+                            Timber.d("Called Loading Ashif")
                             binding.progressBar.isVisible = true
                         }
                         is NewsViewModel.NewsUiEvent.Error -> {
+                            Timber.d("Called Error Ashif")
                             binding.progressBar.isVisible = false
-                            showToast(it.msg)
+                            showToast("${it.msg}")
                         }
                         is NewsViewModel.NewsUiEvent.Success -> {
+                            Timber.d("Called Success Ashif")
                             binding.progressBar.isVisible = false
                             adapter.submitList(it.data)
                         }
@@ -84,7 +88,7 @@ class NewsListFragment : Fragment() {
     }
 
     private fun showToast(msg: String) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
